@@ -2,25 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 const FALLBACK_CONTACTS = [
-    {
-        id: 1,
-        name: "Ada Lovelace",
-        phone: "(555) 010-0101",
-        email: "ada@example.com",
-    },
-    {
-        id: 2,
-        name: "Alan Turing",
-        phone: "(555) 010-0102",
-        email: "alan@example.com",
-    },
-    {
-        id: 3,
-        name: "Grace Hopper",
-        phone: "(555) 010-0103",
-        email: "grace@example.com",
-    },
-];
+    { id: 1, name: "Vincent Lin", phone: "(646) 111-1111", email: "vincent.lin@example.com", photo: "https://photo.com/1.jpg" },
+    { id: 2, name: "Bin Bin Chen", phone: "(646) 111-2222", email: "binbin.chen@example.com", photo: "https://photo.com/2.jpg" },
+    { id: 3, name: "Xian Lin", phone: "(646) 000-3333", email: "xian.lin@example.com", photo: "https://photo.com/3.jpg" },
+    { id: 4, name: "Ryan Chen", phone: "(646) 000-0104", email: "ryan.chen@example.com", photo: "https://photo.com/4.jpg" },
+    { id: 5, name: "Joanna Chen", phone: "(646) 222-0105", email: "joanna.chen@example.com", photo: "https://photo.com/5.jpg" },
+    { id: 6, name: "Christina Lin", phone: "(646) 222-0106", email: "christina.lin@example.com", photo: "https://photo.com/6.jpg" },
+    { id: 7, name: "Angela Huang", phone: "(646) 333-0107", email: "angela.huang@example.com", photo: "https://photo.com/7.jpg" },
+    { id: 8, name: "Jia Li", phone: "(646) 333-0108", email: "jia.li@example.com", photo: "https://photo.com/8.jpg" },
+    { id: 9, name: "Chengling Zheng", phone: "(646) 555-0109", email: "chengling.zheng@example.com", photo: "https://photo.com/9.jpg" },
+    { id: 10, name: "Xiurong Gao", phone: "(646) 555-0110", email: "xiurong.gao@example.com", photo: "https://photo.com/10.jpg" },
+  ];  
 
 const App = () => {
     const [contacts, setContacts] = useState(FALLBACK_CONTACTS);
