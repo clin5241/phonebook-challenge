@@ -2,9 +2,34 @@
     max-width: 1100px;
     margin: 0 auto;
     padding: 2rem 1rem 4rem;
+    background-image: url('https://pbs.twimg.com/media/Fu4dgYHWcAIuwOe.jpg:large') ;
+    background-position: center; background-repeat: no-repeat;
+    min-height: 100vh; position: relative;
 }
 
-.page__header {
+.page::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: rgba(0, 0, 0, 0.5); 
+z-index: 0;
+}
+
+.page > * {
+    position: relative;
+    z-index: 1;
+}
+
+.page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+}
+
+.page header {
     display: grid;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
@@ -18,7 +43,7 @@
 
 .page__subtitle {
     margin: 0;
-    color: #888;
+    color: #000;
 }
 
 .toolbar {
@@ -30,7 +55,7 @@
 
 .btn {
     border-radius: 8px;
-    border: 1px solid #3a3a3a;
+    border: 1px solid #f9f6f6;
     padding: 0.5rem 0.9rem;
     background: #1a1a1a;
     color: inherit;
@@ -58,7 +83,7 @@
 }
 
 .search__results {
-    color: #888;
+    color: #000000;
 }
 
 .contacts {
@@ -89,7 +114,7 @@
 .contact-card__email,
 .contact-card__phone {
     margin: 0.1rem 0;
-    color: #aaa;
+    color: #000000;
 }
 
 .form {
@@ -101,7 +126,7 @@
 .form__body {
     display: grid;
     gap: 0.75rem 1rem;
-    grid-template-columns: 1fr 1fr 160px auto;
+    grid-template-columns: repeat(3, 1fr) auto;
     align-items: end;
 }
 
@@ -137,4 +162,11 @@ select {
     .search__controls {
         grid-template-columns: 1fr 1fr;
     }
+}
+
+input:focus,
+select:focus,
+button:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
