@@ -18,18 +18,84 @@ const App = () => {
   const [contacts, setContacts] = useState(FALLBACK_CONTACTS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  useEffect(() => {}, []);
-
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const contactToShow = contacts[currentPage];
-
-
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
-  function handleSubmit(e) {
-    e.preventDefault();
+  const [formErrors, setFormErrors] = useState ({}) ;
+
+  //Fetch contacts from contacts.json
+useEffect ( () => {
+  async function fetchContacts() {
+    setLoading (true);
+    try {
+      const res = await fetch("/data/contacts.json");
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      
+      const mergedContacts = [
+        ...FALLBACK_CONTACTS,
+        ...(Array.isArray(data) ? data : []),
+      ];
+      setContacts(mergedContacts);
+      
+    } catch (err) {
+        console.error ("Error", err);
+        setContacts (FALLBACK_CONTACTS);
+        setError ("Could not load contacts.");
+    } finally {
+      setLoading (false);
+    }
   }
+  fetchContacts();
+}, []);
+
+//Filter contacts on phone or number
+    const filteredContacts = contacts.filter(
+      (c)=>
+      c.name.toLowerCase().includes(query.toLowerCase()) ||
+      c.phone.includes(query)
+  );
+
+      const contactToShow = filteredContacts[currentPage];
+      
+      function highlightMatch(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, "gi");
+        return text.replace(regex, "<mark>$1</mark>");
+      }
+
+      //Validate data inputted
+      function validateForm() {
+        const errors = {};
+        if (!form.name || form.name.length < 2)
+        errors.name = "Name must be at least 2 characters.";
+        const phonePattern = /^[0-9]+$/;
+  if (!form.phone) {
+    errors.phone = "Phone is required.";
+  } else if (!phonePattern.test(form.phone)) {
+    errors.phone = "Phone must contain only numbers";
+  }
+        if (!form.email.includes("@")) 
+          errors.email = "Email must include '@'.";
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+      }
+
+      //Add new contact
+      function handleSubmit (e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+        const newContact = {
+          id: Date.now(),
+          ...form,
+        };
+        
+      //Reset form after submit
+        setContacts([newContact, ...contacts]);
+        setForm({name: "", phone: "", email: ""});
+        setFormErrors({});
+        setCurrentPage(0);
+      }
 
   return (
     <main className="page" data-testid="page-root">
@@ -45,7 +111,10 @@ const App = () => {
       type="search"
       placeholder="Search by name or phone"
       value={query}
-      onChange={(e) => setQuery(e.target.value)}
+      onChange={(e) => {
+        setQuery(e.target.value);
+        setCurrentPage(0);
+      }}
       data-testid="search-input"
       />
       <button
@@ -56,7 +125,7 @@ const App = () => {
       >
       Search
         </button>  
-          </div>
+    </div>
 
     <p className="search__results" data-testid="results-count">
       {loading ? " (loading...)" : ""}
@@ -67,30 +136,48 @@ const App = () => {
   <section className="contacts" aria-labelledby="contacts-heading">
     <h2 id="contacts-heading">Contacts</h2>
 
+    {filteredContacts.length == 0 && <p>No contacts found.</p>}
+
   {contactToShow && ( 
-    <div className="contact-card"> 
-    <h3 className="contact-card__name">{contactToShow.name}</h3> 
-    <p className="contact-card__phone">{contactToShow.phone}</p> 
+  <div className="contact-card"> 
+    <h3 
+    className="contact-card__name"
+    dangerouslySetInnerHTML={{
+    __html: highlightMatch(contactToShow.name, query),
+      }}
+    />
+    <p className="contact-card__phone"
+    dangerouslySetInnerHTML={{
+      __html: highlightMatch(contactToShow.phone, query),
+    }}
+  />
     <p className="contact-card__email">{contactToShow.email}</p> 
-    <img src={contactToShow.photo} alt={`${contactToShow.name}'s photo`} />
     </div> 
      )}
-
-<div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+<div 
+style={{ 
+  display: "flex", 
+  justifyContent: "center", 
+  marginTop: "1rem" 
+  }}
+  >
   <div className="pagination">
-
     <button
-      className="btn"
-      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
-      disabled={currentPage === 0}
-      >
-      Previous
+    className="btn"
+    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+    disabled={currentPage === 0}
+  >
+    Previous
     </button>
 
     <button
-      className="btn"
-      onClick={() => setCurrentPage(prev => Math.min(prev + 1, contacts.length - 1))}
-      disabled={currentPage === contacts.length - 1}
+    className="btn"
+    onClick={() =>
+      setCurrentPage((prev) =>
+      Math.min(prev + 1, filteredContacts.length - 1)
+      )
+    }
+    disabled={currentPage === filteredContacts.length - 1}
     >
       Next
     </button>
@@ -100,6 +187,7 @@ const App = () => {
             
   <section className="form" aria-labelledby="form-heading">
     <h2 id="form-heading">Add a Contact</h2>
+
       <form className="form__body" onSubmit={handleSubmit} noValidate>
       <div className="field">
       <label htmlFor="Name">Name</label>
@@ -111,7 +199,12 @@ const App = () => {
         onChange={(e) => setForm({ ...form, name: e.target.value })}
         required
         minLength={2}
+        aria-invalid={!!formErrors.name}
+        aria-describedby="name-error"
           />
+  {formErrors.name && (
+    <small id="name-error" style={{ color: "salmon" }}>{formErrors.name}</small>
+    )}
   </div>
     
   <div className="field">
@@ -126,7 +219,14 @@ const App = () => {
       setForm({ ...form, phone: e.target.value })
       }
       required
+      aria-invalid={!!formErrors.phone}
+      aria-describedby="phone-error"
       />
+
+{formErrors.phone && (
+    <small id="phone-error" style={{ color: "salmon" }}>{formErrors.phone}</small>
+    )}
+
       </div>
     <div className="field">
       <label htmlFor="email">Email</label>
@@ -139,7 +239,13 @@ const App = () => {
          onChange={(e) =>
          setForm({ ...form, email: e.target.value })
          }
+         aria-invalid={!!formErrors.email}
+         aria-describedby="email-error"
        />
+         {formErrors.email && (
+    <small id="email-error" style={{ color: "salmon" }}>{formErrors.email}</small>
+    )}
+
    </div>
     <div className="form__actions">
       <button className="btn" type="submit" data-testid="btn-add">
