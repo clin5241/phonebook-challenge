@@ -19,7 +19,6 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(0);
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [formErrors, setFormErrors] = useState ({}) ;
 
@@ -37,7 +36,6 @@ useEffect ( () => {
         ...(Array.isArray(data) ? data : []),
       ];
       setContacts(mergedContacts);
-      
     } catch (err) {
         console.error ("Error", err);
         setContacts (FALLBACK_CONTACTS);
@@ -50,27 +48,28 @@ useEffect ( () => {
 }, []);
 
 //Filter contacts on phone or number
-    const filteredContacts = contacts.filter(
-      (c)=>
+    const filteredContacts = useMemo(
+      ()=>
+      contacts.filter(
+        (c)=>
       c.name.toLowerCase().includes(query.toLowerCase()) ||
       c.phone.includes(query)
-  );
-
-      const contactToShow = filteredContacts[currentPage];
-      
-      function highlightMatch(text, query) {
-        if (!query) return text;
-        const regex = new RegExp(`(${query})`, "gi");
-        return text.replace(regex, "<mark>$1</mark>");
-      }
+  ),
+  [contacts, query]
+    );
+    function highlightMatch(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query})`, "gi");
+      return text.replace(regex, "<mark>$1</mark>");
+    }
 
       //Validate data inputted
       function validateForm() {
         const errors = {};
         if (!form.name || form.name.length < 2)
         errors.name = "Name must be at least 2 characters.";
-        const phonePattern = /^[0-9]+$/;
-  if (!form.phone) {
+        const phonePattern = /^[0-9()\s-]+$/;
+        if (!form.phone) {
     errors.phone = "Phone is required.";
   } else if (!phonePattern.test(form.phone)) {
     errors.phone = "Phone must contain only numbers";
@@ -94,7 +93,6 @@ useEffect ( () => {
         setContacts([newContact, ...contacts]);
         setForm({name: "", phone: "", email: ""});
         setFormErrors({});
-        setCurrentPage(0);
       }
 
   return (
@@ -133,58 +131,36 @@ useEffect ( () => {
       </p>
         </section>
 
-  <section className="contacts" aria-labelledby="contacts-heading">
-    <h2 id="contacts-heading">Contacts</h2>
+        <section className="contacts" aria-labelledby="contacts-heading">
+  <h2 id="contacts-heading">Contacts</h2>
 
-    {filteredContacts.length == 0 && <p>No contacts found.</p>}
+  {filteredContacts.length === 0 && <p>No contacts found.</p>}
 
-  {contactToShow && ( 
-  <div className="contact-card"> 
-    <h3 
-    className="contact-card__name"
-    dangerouslySetInnerHTML={{
-    __html: highlightMatch(contactToShow.name, query),
-      }}
-    />
-    <p className="contact-card__phone"
-    dangerouslySetInnerHTML={{
-      __html: highlightMatch(contactToShow.phone, query),
-    }}
-  />
-    <p className="contact-card__email">{contactToShow.email}</p> 
-    </div> 
-     )}
-<div 
-style={{ 
-  display: "flex", 
-  justifyContent: "center", 
-  marginTop: "1rem" 
-  }}
-  >
-  <div className="pagination">
-    <button
-    className="btn"
-    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-    disabled={currentPage === 0}
-  >
-    Previous
-    </button>
-
-    <button
-    className="btn"
-    onClick={() =>
-      setCurrentPage((prev) =>
-      Math.min(prev + 1, filteredContacts.length - 1)
-      )
-    }
-    disabled={currentPage === filteredContacts.length - 1}
-    >
-      Next
-    </button>
-  </div>
-  </div>
-  </section>
-            
+  <ul className="contacts__grid">
+    {filteredContacts.map((contact) => (
+      <li key={contact.id} className="contact-card">
+        <img
+          src={contact.photo}
+          alt={`Portrait of ${contact.name}`}
+          className="contact-card__photo"
+        />
+        <h3
+          className="contact-card__name"
+          dangerouslySetInnerHTML={{
+            __html: highlightMatch(contact.name, query),
+          }}
+        />
+        <p
+          className="contact-card__phone"
+          dangerouslySetInnerHTML={{
+            __html: highlightMatch(contact.phone, query),
+          }}
+        />
+        <p className="contact-card__email">{contact.email}</p>
+      </li>
+    ))}
+  </ul>
+</section>      
   <section className="form" aria-labelledby="form-heading">
     <h2 id="form-heading">Add a Contact</h2>
 
