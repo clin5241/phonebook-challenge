@@ -2,16 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 const FALLBACK_CONTACTS = [
-  { id: 1, name: "Vincent Lin", phone: "(646) 111-1111", email: "vincent.lin@example.com", photo: "https://photo.com/1.jpg" },
-  { id: 2, name: "Bin Bin Chen", phone: "(646) 111-2222", email: "binbin.chen@example.com", photo: "https://photo.com/2.jpg" },
-  { id: 3, name: "Xian Lin", phone: "(646) 000-3333", email: "xian.lin@example.com", photo: "https://photo.com/3.jpg" },
-  { id: 4, name: "Ryan Chen", phone: "(646) 000-0104", email: "ryan.chen@example.com", photo: "https://photo.com/4.jpg" },
-  { id: 5, name: "Joanna Chen", phone: "(646) 222-0105", email: "joanna.chen@example.com", photo: "https://photo.com/5.jpg" },
-  { id: 6, name: "Christina Lin", phone: "(646) 222-0106", email: "christina.lin@example.com", photo: "https://photo.com/6.jpg" },
-  { id: 7, name: "Angela Huang", phone: "(646) 333-0107", email: "angela.huang@example.com", photo: "https://photo.com/7.jpg" },
-  { id: 8, name: "Jia Li", phone: "(646) 333-0108", email: "jia.li@example.com", photo: "https://photo.com/8.jpg" },
-  { id: 9, name: "Chengling Zheng", phone: "(646) 555-0109", email: "chengling.zheng@example.com", photo: "https://photo.com/9.jpg" },
-  { id: 10, name: "Xiurong Gao", phone: "(646) 555-0110", email: "xiurong.gao@example.com", photo: "https://photo.com/10.jpg" },
+  { id: 1, name: "Christina Lin", phone: "(646) 111-1111", email: "christina.lin@example.com", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTobsxgB25A718ROkFu5dUlwi5AF1IFrXAbjw&s" },
+  { id: 2, name: "Kai Chen", phone: "(646) 111-2222", email: "k.chen@example.com", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkK7rO_tKlVXDcE0A5ivau8yU973WaMbXWS7HIOLgc_CL5cituI__JNfndLptIg36QYL0&usqp=CAU" },
+  { id: 3, name: "Xian Lin", phone: "(646) 000-3333", email: "xian.lin@example.com", photo: "https://i.ytimg.com/vi/NzaVZEnYbdE/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AG-B4AC0AWKAgwIABABGF8gXyhfMA8=&rs=AOn4CLDdPaNWrFWQxdX3IqhwVuzscIXzcw" },
+  { id: 4, name: "Ryan Chen", phone: "(646) 000-0104", email: "ryan.chen@example.com", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMc-DJxS_kOB6pYbP6f73opHQ167EUoTUAXw&s" },
+  { id: 5, name: "Joanna Chen", phone: "(646) 222-0105", email: "joanna.chen@example.com", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwoOae-vXgJiTGkGqJjQzccVw77HCu_QSbZQ&s" },
+  { id: 6, name: "Vincent Lin", phone: "(646) 222-0106", email: "vincent.lin@example.com", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxtnPJeYcm09vxpCauHmzR1zF_zvTbwGHaAA&s" },
+  { id: 7, name: "Angela Huang", phone: "(646) 333-0107", email: "angela.huang@example.com", photo: "https://i.ytimg.com/vi/KPYDyhbtzFs/maxresdefault.jpg" },
+  { id: 8, name: "Jia Li", phone: "(646) 333-0108", email: "jia.li@example.com", photo: "https://i.redd.it/q4jq5d2rojod1.png" },
+  { id: 9, name: "Chengling Zheng", phone: "(646) 555-0109", email: "chengling.zheng@example.com", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5MRiEt-3se6oX9r3pgiJyWKD901T2vrJaFA&s" },
+  { id: 10, name: "Ada Gao", phone: "(646) 555-0110", email: "a.gao@example.com", photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSO6onNxh2kY1mbWoHHuLuur845WJyN8STMcA&s" },
 ];  
 
 const App = () => {
@@ -21,31 +21,6 @@ const App = () => {
   const [query, setQuery] = useState("");
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [formErrors, setFormErrors] = useState ({}) ;
-
-  //Fetch contacts from contacts.json
-useEffect ( () => {
-  async function fetchContacts() {
-    setLoading (true);
-    try {
-      const res = await fetch("/data/contacts.json");
-      if (!res.ok) throw new Error("Failed");
-      const data = await res.json();
-      
-      const mergedContacts = [
-        ...FALLBACK_CONTACTS,
-        ...(Array.isArray(data) ? data : []),
-      ];
-      setContacts(mergedContacts);
-    } catch (err) {
-        console.error ("Error", err);
-        setContacts (FALLBACK_CONTACTS);
-        setError ("Could not load contacts.");
-    } finally {
-      setLoading (false);
-    }
-  }
-  fetchContacts();
-}, []);
 
 //Filter contacts on phone or number
     const filteredContacts = useMemo(
